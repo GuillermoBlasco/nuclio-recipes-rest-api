@@ -7,7 +7,6 @@
   "scripts": {
     "start": "node src",
     "develop": "nodemon --watch src --exec node src",
-    "build": "babel src --out-dir dist",
     "format": "prettier src --write"
   },
   "prettier": {
