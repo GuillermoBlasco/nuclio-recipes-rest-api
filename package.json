@@ -1,0 +1,43 @@
+{
+  "name": "nuclio-rest-api-template",
+  "description": "Express.js REST API Template for Nuclio Digital School",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src",
+    "develop": "nodemon --watch src --exec node src",
+    "build": "babel src --out-dir dist",
+    "format": "prettier src --write"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "tabWidth": 2,
+    "semi": false,
+    "quoteProps": "as-needed",
+    "jsxSingleQuote": false,
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "arrowParens": "avoid",
+    "insertPragma": false,
+    "endOfLine": "lf",
+    "proseWrap": "always",
+    "useTabs": false
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "joi": "^17.3.0",
+    "lowdb": "^1.0.0",
+    "nanoid": "^3.1.20",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.8",
+    "@babel/core": "^7.12.9",
+    "@babel/node": "^7.12.6",
+    "@babel/preset-env": "^7.12.7",
+    "nodemon": "^2.0.6",
+    "prettier": "^2.2.1"
+  }
+}
