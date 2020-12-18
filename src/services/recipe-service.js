@@ -20,9 +20,6 @@ function validateKeywords(keywords) {
   return { error, value }
 }
 
-function getAllRecipes() {
-  return RecipeModel.findAllRecipes()
-}
 
 async function createRecipe(recipe) {
   if (!recipe.photo) {
@@ -44,9 +41,22 @@ function removeRecipe(id) {
   return true
 }
 
-function getAllRecipesByKeywords(keywords) {
-  const recipes = RecipeModel.findAllRecipes()
-  return recipes.filter(recipe => recipe.keywords.some(keyword => keywords.includes(keyword)))
+function getAllRecipesByKeywords({keywords, page, pageSize}) {
+  let data = RecipeModel.findAllRecipes()
+  if (keywords) {
+    data = data.filter(recipe => recipe.keywords.some(keyword => keywords.includes(keyword)));
+  }
+  return paginate(data, page, pageSize);
+}
+
+function paginate(data, page, pageSize) {
+  const pageData = data.slice(page * pageSize, (page + 1) * pageSize);
+  return {
+    contents: pageData,
+    totalElements: data.length,
+    page: page,
+    pageSize: pageSize,
+  };
 }
 
 function getById(id) {
@@ -56,12 +66,11 @@ function getById(id) {
 }
 
 module.exports = {
-  getAllRecipes,
+  getAllRecipesByKeywords,
   getById,
   createRecipe,
   updateRecipe,
   removeRecipe,
-  getAllRecipesByKeywords,
   validateRecipe,
   validateKeywords,
 }

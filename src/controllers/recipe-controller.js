@@ -4,19 +4,33 @@ const validate = require("../middlewares/validate")
 
 const router = Router()
 
+const isInt = text => !isNaN(parseInt(text));
+
 router.get("/", (req, res) => {
-  if (!req.query.keywords) {
-    const recipes = RecipeService.getAllRecipes()
-    res.status(200).json(recipes)
+  const page = parseInt(req.query.page || 0);
+  const pageSize = parseInt(req.query.pageSize || 10);
+  let keywords = req.query.keywords;
+  const serviceData = {};
+  if (!isInt(page) || page < 0) {
+    res.status(400).json({"message": "page should be a non negative number"})
     return
   }
-  const keywords = req.query.keywords.split(",")
-  const { error, value } = RecipeService.validateKeywords(keywords)
-  if (error) {
-    res.status(400).json({ error: error.message })
+  serviceData.page = page;
+  if (!isInt(pageSize) || pageSize < 0) {
+    res.status(400).json({"message": "page size should be a non negative number"})
     return
   }
-  const recipes = RecipeService.getAllRecipesByKeywords(value)
+  serviceData.pageSize = pageSize;
+  if (keywords) {
+    keywords = keywords.split(',');
+    const { error, value } = RecipeService.validateKeywords(keywords)
+    if (error) {
+      res.status(400).json({ error: error.message })
+      return
+    }
+    serviceData.keywords = keywords;
+  }
+  const recipes = RecipeService.getAllRecipesByKeywords(serviceData)
   res.status(200).json(recipes)
 })
 
