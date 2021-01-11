@@ -6,11 +6,14 @@ const router = Router()
 
 const isInt = text => !isNaN(parseInt(text));
 
+// todo migrate to mongodb
 router.get("/", (req, res) => {
   const page = parseInt(req.query.page || 0);
   const pageSize = parseInt(req.query.pageSize || 10);
   let keywords = req.query.keywords;
-  const serviceData = {};
+  const serviceData = {
+    title: req.query.title,
+  };
   if (!isInt(page) || page < 0) {
     res.status(400).json({"message": "page should be a non negative number"})
     return
@@ -39,16 +42,18 @@ router.post("/", validate(RecipeService.validateRecipe), async (req, res) => {
   res.status(201).json(recipe)
 })
 
-router.get("/:id", (req, res) => {
-  const recipe = RecipeService.getById(req.params.id)
+router.get("/:id", async (req, res) => {
+  const recipe = await RecipeService.getById(req.params.id)
   res.status(200).json(recipe)
 })
 
+// todo migrate to mongodb
 router.put("/:id", (req, res) => {
   const recipe = RecipeService.updateRecipe(req.params.id, req.body)
   res.status(201).json(recipe)
 })
 
+// todo migrate to mongodb
 router.delete("/:id", (req, res) => {
   const removed = RecipeService.removeRecipe(req.params.id)
   if (removed) {
@@ -59,3 +64,6 @@ router.delete("/:id", (req, res) => {
 })
 
 module.exports = router
+
+
+const database = {};

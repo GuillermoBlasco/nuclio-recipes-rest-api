@@ -1,6 +1,7 @@
 const Joi = require("joi")
 const RecipeModel = require("../models/recipe-model")
 const PhotoService = require("../services/photo-service")
+const mongoose = require('../models/mongoose');
 
 const keywordsSchema = Joi.array().items(Joi.string().lowercase()).min(1).max(8)
 
@@ -25,7 +26,8 @@ async function createRecipe(recipe) {
   if (!recipe.photo) {
     recipe.photo = await PhotoService.generatePhotoUrlFromKeywords({ keywords: recipe.keywords })
   }
-  return RecipeModel.saveRecipe(recipe)
+  const newlyCreatedRecipe = new mongoose.Recipe(recipe);
+  return newlyCreatedRecipe.save();
 }
 
 function updateRecipe(id, fields) {
@@ -41,10 +43,15 @@ function removeRecipe(id) {
   return true
 }
 
-function getAllRecipesByKeywords({keywords, page, pageSize}) {
+function getAllRecipesByKeywords({keywords, title, page, pageSize}) {
+  // build the mongodb query
+  // set the skip and limit for pagination
   let data = RecipeModel.findAllRecipes()
   if (keywords) {
     data = data.filter(recipe => recipe.keywords.some(keyword => keywords.includes(keyword)));
+  }
+  if (title) {
+    data = data.filter(recipe => recipe.title === title);
   }
   return paginate(data, page, pageSize);
 }
@@ -60,9 +67,7 @@ function paginate(data, page, pageSize) {
 }
 
 function getById(id) {
-  const recipe = RecipeModel.findOneRecipe({ id })
-  if (!recipe) return null
-  return recipe
+  return mongoose.Recipe.findById(id).exec();
 }
 
 module.exports = {

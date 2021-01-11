@@ -17,15 +17,6 @@ function findOneRecipe(filter) {
   return database.get("recipes").find(filter).value()
 }
 
-function saveRecipe(recipe) {
-  const newRecipe = {
-    id: nanoid(),
-    ...recipe,
-  }
-  database.get("recipes").push(newRecipe).write()
-  return newRecipe
-}
-
 function updateRecipe(id, fields) {
   const recipe = database.get("recipes").find({ id }).value()
   const newRecipe = {
@@ -43,7 +34,6 @@ function removeRecipe(id) {
 module.exports = {
   findAllRecipes,
   findOneRecipe,
-  saveRecipe,
   updateRecipe,
   removeRecipe,
 }
