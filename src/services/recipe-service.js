@@ -1,5 +1,4 @@
 const Joi = require("joi")
-const RecipeModel = require("../models/recipe-model")
 const PhotoService = require("../services/photo-service")
 const mongoose = require('../models/mongoose');
 
@@ -24,40 +23,48 @@ function validateKeywords(keywords) {
 
 async function createRecipe(recipe) {
   if (!recipe.photo) {
-    recipe.photo = await PhotoService.generatePhotoUrlFromKeywords({ keywords: recipe.keywords })
+    recipe.photo = await PhotoService.generatePhotoUrlFromKeywords({ keywords: recipe.keywords, title: recipe.title })
   }
   const newlyCreatedRecipe = new mongoose.Recipe(recipe);
   return newlyCreatedRecipe.save();
 }
 
-function updateRecipe(id, fields) {
-  return RecipeModel.updateRecipe(id, fields)
+async function updateRecipe(id, fields) {
+  const recipe = await mongoose.Recipe.findById(id).exec();
+  if (fields.keywords || fields.title) {
+    const photoData = {
+      ...recipe,
+      ...fields,
+    }
+    fields.photo = await PhotoService.generatePhotoUrlFromKeywords(photoData);
+  }
+  Object.keys(fields)
+    .forEach(key => {
+      recipe[key] = fields[key];
+    });
+  await recipe.save();
+  return recipe;
 }
 
-function removeRecipe(id) {
-  const recipe = RecipeModel.findOneRecipe({ id })
-  if (!recipe) {
-    return false
-  }
-  RecipeModel.removeRecipe(id)
-  return true
+async function removeRecipe(id) {
+  const response = await mongoose.Recipe.findByIdAndDelete(id).exec();
+  return response !== null;
 }
 
 function getAllRecipesByKeywords({keywords, title, page, pageSize}) {
-  // build the mongodb query
-  // set the skip and limit for pagination
-  let data = RecipeModel.findAllRecipes()
-  if (keywords) {
-    data = data.filter(recipe => recipe.keywords.some(keyword => keywords.includes(keyword)));
-  }
+  const query = {};
   if (title) {
-    data = data.filter(recipe => recipe.title === title);
+    query.title = title;
   }
-  return paginate(data, page, pageSize);
+  if (keywords) {
+    query.keywords = { $in: keywords };
+  }
+  return mongoose.Recipe.find(query).skip(page * pageSize).limit(pageSize);
 }
 
 function paginate(data, page, pageSize) {
-  const pageData = data.slice(page * pageSize, (page + 1) * pageSize);
+  const skip = page * pageSize;
+  const pageData = data.slice(skip, skip + pageSize);
   return {
     contents: pageData,
     totalElements: data.length,
