@@ -62,17 +62,6 @@ function getAllRecipesByKeywords({keywords, title, page, pageSize}) {
   return mongoose.Recipe.find(query).skip(page * pageSize).limit(pageSize);
 }
 
-function paginate(data, page, pageSize) {
-  const skip = page * pageSize;
-  const pageData = data.slice(skip, skip + pageSize);
-  return {
-    contents: pageData,
-    totalElements: data.length,
-    page: page,
-    pageSize: pageSize,
-  };
-}
-
 function getById(id) {
   return mongoose.Recipe.findById(id).exec();
 }
