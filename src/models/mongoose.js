@@ -10,6 +10,17 @@ const Recipe = mongoose.model('Recipe', {
   photo: String,
 });
 
+const Ingredient = mongoose.model('Ingredient', {
+  name: String,
+  colour: String,
+});
+const User = mongoose.model('User', {
+  name: String,
+  email: String,
+});
+
 module.exports = {
   Recipe,
+  Ingredient,
+  User,
 }

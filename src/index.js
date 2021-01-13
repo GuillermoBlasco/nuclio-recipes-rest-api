@@ -1,7 +1,10 @@
 const express = require("express")
 require("express-async-errors")
 const errorHandler = require("./middlewares/error-handler")
-const RecipeController = require("./controllers/recipe-controller")
+const UserService = require("./services/user-service")
+const RecipeService = require("./services/recipe-service")
+const IngredientService = require("./services/ingredient-service")
+const createRouter = require("./controllers/crud-controller")
 const fetch = require("node-fetch")
 const cors = require('cors');
 
@@ -13,7 +16,9 @@ app.use(cors( {
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }))
 app.use(express.json())
-app.use("/recipes", RecipeController)
+app.use("/recipes", createRouter(RecipeService))
+app.use("/users", createRouter(UserService))
+app.use("/ingredient", createRouter(IngredientService))
 app.use(errorHandler)
 
 app.listen(port, () => console.log(`Listening on http://localhost:${port}`))
